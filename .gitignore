@@ -1,0 +1,7 @@
+# eclipse files
+.metadata
+.project
+.classpath
+.settings
+bin
+
