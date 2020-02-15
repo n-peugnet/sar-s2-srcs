@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -50,7 +49,12 @@ public class Interpreteur {
 				} catch (IllegalArgumentException e) {
 					System.err.println(e.getMessage());
 				} catch (ReflectiveOperationException e) {
-					e.printStackTrace();
+					Throwable cause = e.getCause();
+					if (cause != null) {
+						System.err.println(cause.getMessage());
+					} else {
+						e.printStackTrace();
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -73,12 +77,12 @@ public class Interpreteur {
 			command = this.args.get(0);
 			path = this.args.get(1);
 			name =this.args.get(2);
-			try {
-				URL url = new File(path).toURI().toURL();
-				ClassLoader loader = new URLClassLoader(new URL[]{url});
+			try (URLClassLoader loader =
+				new URLClassLoader(new URL[] { new File(path).toURI().toURL() })
+			) {
 				loader.loadClass(name);
-				cls = (Class<Command>) Class.forName(name);
-			} catch (ClassNotFoundException|MalformedURLException e) {
+				cls = Class.forName(name).asSubclass(Command.class);
+			} catch (ClassNotFoundException | IOException e) {
 				throw new IllegalArgumentException(e);
 			}
 		}
@@ -86,7 +90,7 @@ public class Interpreteur {
 		@Override
 		public void execute() {
 			Interpreteur.this.commands.put(command, cls);
-			
+			System.out.println("Added command: " + command);
 		}
 	}
 	
@@ -101,6 +105,7 @@ public class Interpreteur {
 		@Override
 		public void execute() {
 			Interpreteur.this.commands.remove(command);
+			System.out.println("Removed command: " + command);
 		}
 	}
 }

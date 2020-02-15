@@ -11,7 +11,7 @@ public class Add extends Command {
 	public Add(List<String> args) throws IllegalArgumentException {
 		super(args);
 		if (args.size() < 3) {
-			throw new IllegalArgumentException("usage : add <operande1> <operande2>");
+			throw new IllegalArgumentException("Usage : add <operande1> <operande2>");
 		}
 		this.a = Integer.parseInt(args.get(1));
 		this.b = Integer.parseInt(args.get(2));
