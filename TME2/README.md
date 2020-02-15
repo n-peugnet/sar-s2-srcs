@@ -1,5 +1,9 @@
 # TME 2
 
-To deploy the add command
+To create Add.class (shell)
 
-    deploy add bin/test/Add.class test.Add
+	javac comm/*.java -cp src
+
+To deploy the add command (Interpreteur)
+
+	deploy add Add.class Add

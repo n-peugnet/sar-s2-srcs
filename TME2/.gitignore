@@ -1,0 +1,4 @@
+*.class
+
+# interpreteur save file
+save
