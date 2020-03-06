@@ -1,0 +1,13 @@
+syntax = "proto3";
+package srcs.proto;
+
+import "google/protobuf/empty.proto";
+
+message Message {
+	string pseudo = 1;
+	string message = 2;
+}
+
+service ChatService {
+	rpc send (Message) returns (google.protobuf.Empty);
+}
