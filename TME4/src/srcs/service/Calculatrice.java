@@ -1,13 +1,8 @@
 package srcs.service;
 
-import java.net.Socket;
-
-public class Calculatrice implements Service{
-
-	@Override
-	public void execute(Socket connection) {
-		// TODO Auto-generated method stub
-		
-	}
-
+public interface Calculatrice {
+	int add(int a, int b);
+	int sous(int a, int b);
+	int mult(int a, int b);
+	int div(int a, int b);
 }
