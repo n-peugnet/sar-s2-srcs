@@ -1,13 +1,31 @@
 syntax = "proto3";
-package srcs.proto;
+package srcs.chat.proto;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 message Message {
 	string pseudo = 1;
 	string message = 2;
 }
 
-service ChatService {
+message Chatter {
+	string pseudo = 1;
+	string host = 2;
+	int32 port = 3;
+}
+
+message ListChatter {
+	repeated string value = 1;
+}
+
+service ChatServer {
+	rpc subscribe (Chatter) returns (google.protobuf.BoolValue);
 	rpc send (Message) returns (google.protobuf.Empty);
+	rpc listChatter (google.protobuf.Empty) returns (ListChatter);
+	rpc unsubscribe (google.protobuf.StringValue) returns (google.protobuf.Empty);
+}
+
+service ChatClient {
+	rpc newMessage (Message) returns (google.protobuf.Empty);
 }
