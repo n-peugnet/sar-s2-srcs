@@ -49,7 +49,7 @@ public class TestServeurMultiThread {
 	
 	public static class ServiceSansAnnotation extends ServiceImpl{}
 	
-	public static int port=4234;	
+	public static int port=4236;	
 	
 	@Before
 	public void before() {
