@@ -273,7 +273,7 @@ public class TestService {
 			try(Socket service = new Socket("localhost", portannuaire)){
 				try(ObjectOutputStream oos = new ObjectOutputStream(service.getOutputStream())){
 					try(ObjectInputStream ois = new ObjectInputStream(service.getInputStream())){
-						System.err.println("Test presence nom"+i);
+						System.out.println("Test presence nom"+i);
 						oos.writeUTF("lookup");
 						oos.writeUTF("nom"+i);
 						oos.flush();

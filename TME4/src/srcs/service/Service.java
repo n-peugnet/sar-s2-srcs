@@ -39,12 +39,18 @@ public interface Service {
 						args.add(ois.readLong());
 					} else if (c.equals(Double.TYPE)) {
 						args.add(ois.readDouble());
+					} else if (c.equals(String.class)) {
+						args.add(ois.readUTF());
 					} else {
 						args.add(ois.readObject());
 					}
 				}
 				Object res = m.invoke(this, args.toArray());
-				oos.writeObject(res);
+				if (m.getReturnType().equals(Void.TYPE)) {
+					oos.writeObject(new VoidResponse());
+				} else {
+					oos.writeObject(res);
+				}
 			} catch (ReflectiveOperationException e) {
 				oos.writeObject(new MyProtocolException("Reflexion exception", e));
 			} catch (NoSuchElementException e) {

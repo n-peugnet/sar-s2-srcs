@@ -1,28 +1,30 @@
 package srcs.service.annuaire;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import srcs.service.EtatGlobal;
 import srcs.service.Service;
 
 @EtatGlobal
 public class AnnuaireService implements Service, Annuaire {
 
+	protected Map<String, String> map = new ConcurrentHashMap<>();
 
 	@Override
 	public String lookup(String nom) {
-		// TODO Auto-generated method stub
-		return null;
+		String valeur = map.get(nom);
+		return valeur == null ? "": valeur;
 	}
 
 	@Override
 	public void bind(String nom, String valeur) {
-		// TODO Auto-generated method stub
-
+		map.put(nom, valeur);
 	}
 
 	@Override
 	public void unbind(String nom) {
-		// TODO Auto-generated method stub
-
+		map.remove(nom);
 	}
 
 }
