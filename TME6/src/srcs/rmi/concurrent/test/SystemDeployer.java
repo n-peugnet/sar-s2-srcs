@@ -14,30 +14,38 @@ import org.junit.Before;
 
 import srcs.rmi.concurrent.SharedVariable;
 import srcs.rmi.concurrent.SharedVariableClassical;
+import srcs.rmi.concurrent.SharedVariableReliable;
 
 public class SystemDeployer {
 	
 	private Process p;
-	private SharedVariable<Integer> var;
+	private SharedVariable<Integer> varClassical;
+	private SharedVariable<Integer> varReliable;
 	private Registry registry;
-	private String name = "variableIntegerClassical";
+	private String classical = "variableIntegerClassical";
+	private String reliable = "variableIntegerReliable";
 	
 	@Before
 	public void setUp() throws IOException, AlreadyBoundException, InterruptedException {
 		new ProcessBuilder("killall", "-q", "rmiregistry").inheritIO().start().waitFor();
 		p = new ProcessBuilder("rmiregistry", "-J-Djava.class.path=" + System.getProperty("java.class.path")).inheritIO().start();
-		var = new SharedVariableClassical<>(0);
-		UnicastRemoteObject.exportObject(var, 0);
+		varClassical = new SharedVariableClassical<>(0);
+		varReliable = new SharedVariableReliable<>(0);
+		UnicastRemoteObject.exportObject(varClassical, 0);
+		UnicastRemoteObject.exportObject(varReliable, 0);
 		System.out.println("Waiting for rmi server...");
-		Thread.sleep(1000);
+		Thread.sleep(500);
 		registry = LocateRegistry.getRegistry("localhost");
-		registry.bind(name, var);
+		registry.bind(classical, varClassical);
+		registry.bind(reliable, varReliable);
 	}
 	
 	@After
 	public void tearDown() throws AccessException, RemoteException, NotBoundException {
-		registry.unbind(name);
-		UnicastRemoteObject.unexportObject(var, true);
+		registry.unbind(reliable);
+		registry.unbind(classical);
+		UnicastRemoteObject.unexportObject(varReliable, true);
+		UnicastRemoteObject.unexportObject(varClassical, true);
 		p.destroyForcibly();
 	}
 
