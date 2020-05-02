@@ -3,6 +3,7 @@ package srcs.rmi.service;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class SuperHost implements Host {
 		throws RemoteException
 	{
 		try {
-			return deployExistingService(name, cls.newInstance());
+			return deployExistingService(name, cls.getConstructor(String.class).newInstance(name));
 		} catch (ReflectiveOperationException e) {
 			throw new RemoteException("Could not instanciate the service class", e);
 		}
@@ -52,7 +53,7 @@ public class SuperHost implements Host {
 
 	@Override
 	public Set<String> getServices() throws RemoteException {
-		return services.keySet();
+		return new HashSet<>(services.keySet());
 	}
 
 }
