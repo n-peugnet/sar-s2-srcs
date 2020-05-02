@@ -42,8 +42,12 @@ public class SuperHost implements Host {
 	}
 
 	@Override
-	public void undeployService(String name) throws RemoteException {
-		services.remove(name);
+	public boolean undeployService(String name) throws RemoteException {
+		if (services.containsKey(name)) {
+			services.remove(name);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
