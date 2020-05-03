@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 public abstract class AbstractFunctionService<P extends Serializable, R extends Serializable> implements FunctionService<P, R>, Cloneable {
 	
 	protected String name;
-	protected FunctionService<P, R> proxy;
+	protected FunctionService<P, R> target;
 
 	protected abstract R perform(P param) throws RemoteException;
 
@@ -17,30 +17,30 @@ public abstract class AbstractFunctionService<P extends Serializable, R extends 
 
 	@Override
 	public String getName() throws RemoteException {
-		if (proxy == null)
+		if (target == null)
 			return name;
 		else
-			return proxy.getName();
+			return target.getName();
 	}
 
 	@Override
 	public synchronized R invoke(P param) throws RemoteException {
-		if (proxy == null)
+		if (target == null)
 			return perform(param);
 		else
-			return proxy.invoke(param);
+			return target.invoke(param);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized FunctionService<P, R> migrateTo(Host host) throws RemoteException {
-		if (proxy == null) {
+		if (target == null) {
 			try {
-				proxy = host.deployExistingService(getName(), (FunctionService<P, R>) this.clone());
+				target = host.deployExistingService(getName(), (FunctionService<P, R>) this.clone());
 			} catch (CloneNotSupportedException e) {
 				throw new RemoteException("Could not copy the service class", e);
 			}
-			return proxy;
+			return target;
 		} else {
 			throw new RemoteException("Already migrated");
 		}
