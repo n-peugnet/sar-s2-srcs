@@ -120,7 +120,7 @@ public class ServiceSansEtatTest extends SystemDeployer {
 		assertFalse(s1.getServices().contains(nameservice));
 		assertTrue(s2.getServices().contains(nameservice));
 		try {
-			div1.getName();
+			div3.getName();
 			assertTrue(false);
 		}catch(NoSuchObjectException e) {
 			assertTrue(true);

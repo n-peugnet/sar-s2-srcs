@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 @SuppressWarnings("serial")
-public abstract class AbstractFunctionService<P extends Serializable, R extends Serializable> implements FunctionService<P, R> {
+public abstract class AbstractFunctionService<P extends Serializable, R extends Serializable> implements FunctionService<P, R>, Cloneable {
 	
 	protected String name;
-	protected AbstractFunctionService<P, R> proxy;
+	protected FunctionService<P, R> proxy;
 
 	protected abstract R perform(P param) throws RemoteException;
 
@@ -28,7 +28,7 @@ public abstract class AbstractFunctionService<P extends Serializable, R extends 
 		if (proxy == null)
 			return perform(param);
 		else
-			return proxy.perform(param);
+			return proxy.invoke(param);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,15 +36,17 @@ public abstract class AbstractFunctionService<P extends Serializable, R extends 
 	public synchronized FunctionService<P, R> migrateTo(Host host) throws RemoteException {
 		if (proxy == null) {
 			try {
-				proxy = this.getClass().getConstructor(String.class).newInstance(getName());
-			} catch (ReflectiveOperationException e) {
+				proxy = host.deployExistingService(getName(), (FunctionService<P, R>) this.clone());
+			} catch (CloneNotSupportedException e) {
 				throw new RemoteException("Could not copy the service class", e);
 			}
-			return host.deployExistingService(getName(), proxy);
+			return proxy;
 		} else {
 			throw new RemoteException("Already migrated");
 		}
 	}
-	
-	
+
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 }

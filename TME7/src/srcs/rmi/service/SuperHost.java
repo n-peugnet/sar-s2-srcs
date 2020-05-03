@@ -2,6 +2,7 @@ package srcs.rmi.service;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class SuperHost implements Host {
 		if (services.containsKey(name)) {
 			throw new RemoteException("Service '" + name + "' already exists");
 		}
+		UnicastRemoteObject.exportObject(service, 0);
 		services.put(name, service);
 		return service;
 	}
@@ -45,7 +47,7 @@ public class SuperHost implements Host {
 	@Override
 	public boolean undeployService(String name) throws RemoteException {
 		if (services.containsKey(name)) {
-			services.remove(name);
+			UnicastRemoteObject.unexportObject(services.remove(name), true);
 			return true;
 		}
 		return false;
