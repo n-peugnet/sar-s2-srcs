@@ -45,8 +45,4 @@ public abstract class AbstractFunctionService<P extends Serializable, R extends 
 			throw new RemoteException("Already migrated");
 		}
 	}
-
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
 }
