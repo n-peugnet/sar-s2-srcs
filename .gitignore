@@ -3,5 +3,10 @@
 .project
 .classpath
 .settings
-bin
 
+# compiled files
+bin
+*.class
+
+# other files
+*.zip
