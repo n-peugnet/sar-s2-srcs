@@ -107,6 +107,13 @@ public class GraphImpl<T> implements Graph<T> {
 		return accessible(from, visited);
 	}
 	
+	/**
+	 * fonction récursive renvoyant la liste des noeuds accessibles à partir de from
+	 * en excluant les noeuds déjà visités.
+	 * @param from
+	 * @param visited
+	 * @return la liste des noeuds accessibles.
+	 */
 	protected Set<T> accessible(T from, Set<T> visited) {
 		Set<T> list = new HashSet<>(getNeighborsOut(from));
 		Set<T> toVisit = new HashSet<>(list);
