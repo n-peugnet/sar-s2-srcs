@@ -4,8 +4,8 @@ import java.util.Map;
 
 public abstract class Job {
 
-	protected final String name;
-	protected final Map<String, Object> context;
+	private final String name;
+	private final Map<String, Object> context;
 	
 	public Job(String name, Map<String, Object> context) {
 		this.name = name;
