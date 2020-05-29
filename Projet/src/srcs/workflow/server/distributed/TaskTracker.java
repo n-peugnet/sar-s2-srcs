@@ -6,20 +6,21 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import srcs.workflow.server.Host;
-import srcs.workflow.server.HostImpl;
 import srcs.workflow.server.Master;
+import srcs.workflow.server.TaskHost;
 
 public class TaskTracker {
 
-	private static Host host;
+	private static TaskHost host;
 	private static Registry registry;
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {
-		host = new HostImpl();
+		String name = args[0];
+		int maxTask = Integer.valueOf(args[1]);
+		host = new HostTaskTracker();
 		UnicastRemoteObject.exportObject(host, 0);
 		registry = LocateRegistry.getRegistry();
 		Master master = (Master) registry.lookup("host");
-		master.registerTaskTracker(host);
+		master.registerTaskTracker(host, name, maxTask);
 	}
 }

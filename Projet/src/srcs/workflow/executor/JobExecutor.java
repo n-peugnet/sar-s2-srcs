@@ -16,7 +16,7 @@ public abstract class JobExecutor {
 	
 	protected Job job;
 	
-	public JobExecutor(Job job) throws ValidationException {
+	public JobExecutor(Job job) {
 		this.job = job;
 	}
 	

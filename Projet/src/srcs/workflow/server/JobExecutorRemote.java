@@ -22,7 +22,7 @@ public class JobExecutorRemote extends JobExecutor {
 		Registry registry = LocateRegistry.getRegistry();
 		Notifiable client = new NotifStdout();
 		UnicastRemoteObject.exportObject(client, 0);
-		Host host = (Host) registry.lookup("host");
+		JobHost host = (JobHost) registry.lookup("host");
 		Map<String, Object> results = host.submitJob(client, job);
 		UnicastRemoteObject.unexportObject(client, false);
 		return results;

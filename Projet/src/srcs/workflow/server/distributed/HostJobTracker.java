@@ -7,16 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import srcs.workflow.executor.JobExecutorPluggable;
+import srcs.workflow.executor.JobExecutorDistributed;
 import srcs.workflow.job.Job;
 import srcs.workflow.notifications.Notifiable;
-import srcs.workflow.server.Host;
+import srcs.workflow.server.TaskHost;
+import srcs.workflow.server.HostImpl;
 import srcs.workflow.server.Master;
 
-public class HostJobTracker implements Host, Master {
+public class HostJobTracker extends HostImpl implements Master, TaskTrackerManager {
 	
-	protected List<Host> taskTrackers = new ArrayList<>();
+	protected List<TaskHost> taskTrackers = new ArrayList<>();
 	protected Set<Submission> submissions = new HashSet<>();
-	private int next = 0; 
+	private int next = 0;
 
 	@Override
 	public Map<String, Object> submitJob(Notifiable client, Job job) throws RemoteException {
@@ -28,20 +31,21 @@ public class HostJobTracker implements Host, Master {
 			throw new RemoteException("A job with the same name is being processed");
 		}
 		submissions.add(submission);
-		return taskTrackers.get(getNext()).submitJob(client, job);
-		
+		JobExecutorPluggable executor = new JobExecutorDistributed(job, this);
+		return executeJob(executor, client, job);
 	}
 	
-	protected int getNext() {
+	public TaskHost nextTaskTracker() {
 		synchronized (taskTrackers) {
 			next = (next + 1) % taskTrackers.size();
+			return taskTrackers.get(next);
 		}
-		return next;
 	}
 
 	@Override
-	public void registerTaskTracker(Host newHost) throws RemoteException {
+	public void registerTaskTracker(TaskHost newHost, String name, int maxTask) throws RemoteException {
 		synchronized (taskTrackers) {
+			// TODO: save name and maxTask
 			taskTrackers.add(newHost);
 		}
 	}
