@@ -21,8 +21,10 @@ import srcs.workflow.job.Job;
 import srcs.workflow.job.JobValidator;
 import srcs.workflow.job.LinkFrom;
 import srcs.workflow.job.ValidationException;
+import srcs.workflow.notifications.NotifNull;
+import srcs.workflow.notifications.Notifiable;
 
-public class JobExecutorParallel extends JobExecutor {
+public class JobExecutorParallel extends JobExecutor implements JobExecutorPluggable {
 
 	public JobExecutorParallel(Job job) throws ValidationException {
 		super(job);
@@ -30,6 +32,12 @@ public class JobExecutorParallel extends JobExecutor {
 
 	@Override
 	public Map<String, Object> execute() throws ValidationException, Exception {
+		return this.execute(new NotifNull());
+	}
+
+	@Override
+	public Map<String, Object> execute(Notifiable target) throws ValidationException, Exception {
+
 		Map<String, Future<Object>> futureResults = new ConcurrentHashMap<>();
 		Map<String, Object> results = new HashMap<>();
 		JobValidator jv = new JobValidator(job);
@@ -48,7 +56,10 @@ public class JobExecutorParallel extends JobExecutor {
 				}
 			}
 		}
+		int i = 0;
 		for (String key : futureResults.keySet()) {
+			i++;
+			target.notify(i);
 			results.put(key, futureResults.get(key).get());
 		}
 		return results;
