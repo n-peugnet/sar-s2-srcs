@@ -1,6 +1,5 @@
 package srcs.workflow.executor;
 
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import srcs.workflow.job.ValidationException;
 
 public class JobExecutorParallel extends JobExecutor {
 
-	public JobExecutorParallel(Job job) {
+	public JobExecutorParallel(Job job) throws ValidationException {
 		super(job);
 	}
 

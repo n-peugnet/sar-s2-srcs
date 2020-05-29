@@ -10,10 +10,11 @@ import java.util.stream.StreamSupport;
 import srcs.workflow.graph.Graph;
 import srcs.workflow.job.Job;
 import srcs.workflow.job.JobValidator;
+import srcs.workflow.job.ValidationException;
 
 public class JobExecutorSequential extends JobExecutor {
 
-	public JobExecutorSequential(Job job) {
+	public JobExecutorSequential(Job job) throws ValidationException {
 		super(job);
 	}
 
