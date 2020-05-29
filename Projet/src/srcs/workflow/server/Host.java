@@ -1,4 +1,4 @@
-package srcs.workflow.server.central;
+package srcs.workflow.server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

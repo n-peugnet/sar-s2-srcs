@@ -3,6 +3,7 @@ package srcs.workflow.job;
 import java.io.Serializable;
 import java.util.Map;
 
+
 public abstract class Job implements Serializable {
 
 	/** Version */
@@ -22,5 +23,19 @@ public abstract class Job implements Serializable {
 	
 	public Map<String, Object> getContext() {
 		return context;
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this.getClass().isInstance(obj)) {
+			Job job = this.getClass().cast(obj);
+			return name.equals(job.name);
+		}
+		return false;
 	}
 }
