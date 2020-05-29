@@ -22,7 +22,7 @@ taches permet donc plus de fléxibilité.
 ### Question 1
 
 Tant qu'il reste des taches à executer on parcourt les taches restantes. Et si
-tous les résultats requis par cette tache sont disponnibles on peut alors
+tous les résultats requis par cette tache sont disponibles on peut alors
 l'executer et la returer de la liste des taches restantes.
 
 
@@ -30,13 +30,15 @@ l'executer et la returer de la liste des taches restantes.
 
 ### Question 1
 
-A partir du moment où une tache est executable, c'est à dire que tous les
-resultats qu'elle requiert sont présents, on peut alors la lancer dans un
-thread.
+J'avais initialement fait une synchro uniquement basée sur un spinlock au
+niveau de la table des résultats. Mais je me suis finalement dit que ça serait
+tout de même un peu plus propre de faire attendre les threads.
 
-La synchro au niveau de la table des résultats est assurée par l'utilisation
-d'une `ConcurrentHashMap` et d'un spin lock qui vérifie les résultats en permanence
-(je vais peut être modifier ce comportement par la suite).
+J'ai donc ajouté un `ExecutorService` qui me permet de submit des `ExecutorThread`,
+ma classe qui éxécute une tache. ceux ci remplissent la table `futureResults`
+avec des `Futur<Object>` lesquels permettent au thread qui en ont besoin
+d'attendre que les résultats soient disponibles.
 
-Une fois qu'on a join tous les threads lancés on sait que tous les résultats
-sont disponnibles et on peut retourener la table de résultats.
+Une fois sortis de la boucle on copies tous ces futurs résultats dans la table
+de résultats finaux ce qui nous permet d'attendre que tous les résultats soient
+bien disponibles.
