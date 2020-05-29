@@ -1,6 +1,6 @@
 # Moteur d’exécution de workflows
 
-Nicolas Peugnet
+Nicolas Peugnet  
 Mai 2020
 
 ## Exercice 1
@@ -26,3 +26,17 @@ tous les résultats requis par cette tache sont disponnibles on peut alors
 l'executer et la returer de la liste des taches restantes.
 
 
+## Exercice 4
+
+### Question 1
+
+A partir du moment où une tache est executable, c'est à dire que tous les
+resultats qu'elle requiert sont présents, on peut alors la lancer dans un
+thread.
+
+La synchro au niveau de la table des résultats est assurée par l'utilisation
+d'une `ConcurrentHashMap` et d'un spin lock qui vérifie les résultats en permanence
+(je vais peut être modifier ce comportement par la suite).
+
+Une fois qu'on a join tous les threads lancés on sait que tous les résultats
+sont disponnibles et on peut retourener la table de résultats.
