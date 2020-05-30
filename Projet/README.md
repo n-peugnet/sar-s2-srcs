@@ -134,29 +134,28 @@ suis donc pas embêté à distribuer le protocole plus que ça.
 ### 5.5. Plusieurs jobs en cours d’exécution sur le cluster
 
 Je n'ai eu en quelque sorte rien eu à faire de particulier pour que plusieurs
-jobs puissent être en cours d'éxécutions sur le cluster. RMI lance un thread par
+jobs puissent être en cours d'exécutions sur le cluster. RMI lance un thread par
 requête lequel va instancier un `JobExecutorDistributed`. Celui-ci va ensuite
 lancer un thread par tâche qui _wait_ chacun sur l'ensemble des résultats qu'ils
 attendent grâce aux `Future<Object>`. Une fois tous ces résultats obtenus ils
 sont tous synchronisés au niveau de la `BlockingQueue` ce qui permet à chaque
 thread de chaque job d'attendre qu'un `TaskExecutor` soit disponible.
 
-### 5.6. Mécanisme de détéction de panne et réaffectation des tâches perdues
+### 5.6. Mécanisme de détection de panne et réaffectation des tâches perdues
 
 Le maître attend de chaque `TaskExecutor` qu'il lui renvoie un résultat via RMI.
 Si celui-ci ne le fait pas ou renvoie un résultat incorrect, RMI lève une
-exception facile à identifier car elle est scpécifique à ce problème : la
+exception facile à identifier car elle est spécifique à ce problème : la
 `UnmarshalException`. Le `JobExecutor` _catche_ donc cette exception en
-particulier et, dans son traitement, signale le noeud défaillant pour qu'il soit
-retiré de la queue des `TaskExecutor` disponibles, pui demande un nouveau
+particulier et, dans son traitement, signale le nœud défaillant pour qu'il soit
+retiré de la queue des `TaskExecutor` disponibles, puis demande un nouveau
 `TaskExecutor` pour lui soumettre à nouveau la tâche.
 Je n'ai pas mis ce traitement dans une boucle car je trouvais que 2 essais
-étaient suffisants dans la pluspart des cas. Si le `JobExecutor` tombe sur deux
-noeuds défaillants à la suite alors j'exécution du _job_ échoue et renvoie une
+étaient suffisants dans la plupart des cas. Si le `JobExecutor` tombe sur deux
+nœuds défaillants à la suite alors l'exécution du _job_ échoue et renvoie une
 `RemoteException` que l'utilisateur pourra catcher afin de pouvoir lui-même
-retenter l'éxécution de son _job_, peut-être avec une politique
+retenter l'exécution de son _job_, peut-être avec une politique
 d'_exponential backoff_.
-
 
 *[API]: Application Programming Interface
 *[RMI]: Remote Method Invocation
