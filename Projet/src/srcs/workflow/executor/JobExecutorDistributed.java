@@ -2,6 +2,7 @@ package srcs.workflow.executor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,9 +93,16 @@ public class JobExecutorDistributed extends JobExecutor implements JobExecutorPl
 					args.add(results.get(param.getAnnotation(LinkFrom.class).value()).get());
 				}
 			}
-			TaskExecutor host = manager.getTaskExecutor();
-			Object result = host.submitTask(job, m.getName(), args.toArray());
-			manager.putTaskExecutor(host);
+			TaskExecutor executor = manager.getTaskExecutor();
+			Object result;
+			try {
+				result = executor.submitTask(job, m.getName(), args.toArray());
+			} catch(UnmarshalException e) {
+				manager.reportTaskExecutor(executor);
+				executor = manager.getTaskExecutor();
+				result = executor.submitTask(job, m.getName(), args.toArray());
+			}
+			manager.putTaskExecutor(executor);
 			return result;
 		}
 		

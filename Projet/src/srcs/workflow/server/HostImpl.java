@@ -12,14 +12,22 @@ import srcs.workflow.notifications.Notifiable;
 public class HostImpl implements JobHost {
 
 	@Override
-	public Map<String, Object> submitJob(Notifiable client, Job job) throws RemoteException {
+	public Map<String, Object> submitJob(Notifiable target, Job job) throws RemoteException {
 		JobExecutorPluggable executor = new JobExecutorParallel(job);
-		return executeJob(executor, client, job);
+		return executeJob(executor, target, job);
 	}
 
-	protected Map<String, Object> executeJob(JobExecutorPluggable executor, Notifiable client, Job job) throws RemoteException {
+	/**
+	 * Fonction interne permettant d'effectivement execute un Job via le JobExecutor donné.
+	 * @param executor l'executor avec lequel on veut executer le job.
+	 * @param target la cible où envoyer les notifications.
+	 * @param job le job à éxécuter.
+	 * @return le résultat de l'éxécution du job.
+	 * @throws RemoteException si un problème s'est déroulé lors de l'éxecution du Job.
+	 */
+	protected Map<String, Object> executeJob(JobExecutorPluggable executor, Notifiable target, Job job) throws RemoteException {
 		try {
-			return executor.execute(client);
+			return executor.execute(target);
 		} catch (ValidationException e) {
 			throw new RemoteException("Provided job is not valid", e);
 		} catch (Exception e) {
