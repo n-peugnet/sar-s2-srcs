@@ -1,11 +1,11 @@
 package srcs.workflow.server.distributed;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import srcs.workflow.executor.JobExecutorPluggable;
 import srcs.workflow.executor.JobExecutorDistributed;
@@ -15,17 +15,13 @@ import srcs.workflow.server.TaskHost;
 import srcs.workflow.server.HostImpl;
 import srcs.workflow.server.Master;
 
-public class HostJobTracker extends HostImpl implements Master, TaskTrackerManager {
-	
-	protected List<TaskHost> taskTrackers = new ArrayList<>();
+public class HostJobTracker extends HostImpl implements Master, TaskExecutorManager {
+
+	protected BlockingQueue<TaskExecutor> taskExecutors = new LinkedBlockingQueue<>();
 	protected Set<Submission> submissions = new HashSet<>();
-	private int next = 0;
 
 	@Override
 	public Map<String, Object> submitJob(Notifiable client, Job job) throws RemoteException {
-		if (taskTrackers.isEmpty()) {
-			throw new RemoteException("No task tracker to exexcute this job");
-		}
 		Submission submission = new Submission(client, job);
 		if (submissions.contains(submission)) {
 			throw new RemoteException("A job with the same name is being processed");
@@ -35,19 +31,25 @@ public class HostJobTracker extends HostImpl implements Master, TaskTrackerManag
 		return executeJob(executor, client, job);
 	}
 	
-	public TaskHost nextTaskTracker() {
-		synchronized (taskTrackers) {
-			next = (next + 1) % taskTrackers.size();
-			return taskTrackers.get(next);
+	@Override
+	public TaskExecutor getTaskExecutor() throws InterruptedException {
+		TaskExecutor executor = taskExecutors.take();
+		if (executor.use()) {
+			taskExecutors.add(executor);
+		}
+		return executor;
+	}
+
+	@Override
+	public void putTaskExecutor(TaskExecutor executor) {
+		if (executor.put()) {
+			taskExecutors.add(executor);
 		}
 	}
 
 	@Override
-	public void registerTaskTracker(TaskHost newHost, String name, int maxTask) throws RemoteException {
-		synchronized (taskTrackers) {
-			// TODO: save name and maxTask
-			taskTrackers.add(newHost);
-		}
+	public void registerTaskTracker(TaskHost host, String name, int maxTask) throws RemoteException {
+		taskExecutors.add(new TaskExecutor(host, name, maxTask));
 	}
 	
 	/**

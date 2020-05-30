@@ -23,14 +23,14 @@ import srcs.workflow.job.LinkFrom;
 import srcs.workflow.job.ValidationException;
 import srcs.workflow.notifications.NotifNull;
 import srcs.workflow.notifications.Notifiable;
-import srcs.workflow.server.TaskHost;
-import srcs.workflow.server.distributed.TaskTrackerManager;
+import srcs.workflow.server.distributed.TaskExecutor;
+import srcs.workflow.server.distributed.TaskExecutorManager;
 
 public class JobExecutorDistributed extends JobExecutor implements JobExecutorPluggable {
 
-	TaskTrackerManager manager;
+	TaskExecutorManager manager;
 
-	public JobExecutorDistributed(Job job, TaskTrackerManager manager) throws ValidationException {
+	public JobExecutorDistributed(Job job, TaskExecutorManager manager) throws ValidationException {
 		super(job);
 		this.manager = manager;
 	}
@@ -53,8 +53,7 @@ public class JobExecutorDistributed extends JobExecutor implements JobExecutorPl
 			while (i.hasNext()) {
 				String task = i.next();
 				if (taskGraph.getNeighborsIn(task).stream().allMatch(id -> futureResults.containsKey(id))) {
-					TaskHost host = manager.nextTaskTracker();
-					Callable<Object> callable = new ExecutorThread(futureResults, job, jv.getMethod(task), host);
+					Callable<Object> callable = new ExecutorThread(futureResults, job, jv.getMethod(task), manager);
 					futureResults.put(task, executor.submit(callable));
 					i.remove();
 				}
@@ -74,13 +73,13 @@ public class JobExecutorDistributed extends JobExecutor implements JobExecutorPl
 		Map<String, Future<Object>> results;
 		Job job;
 		Method m;
-		TaskHost host;
+		TaskExecutorManager manager;
 		
-		public ExecutorThread(Map<String, Future<Object>> results, Job job, Method m, TaskHost host) {
+		public ExecutorThread(Map<String, Future<Object>> results, Job job, Method m, TaskExecutorManager manager) {
 			this.results = results;
 			this.job = job;
 			this.m = m;
-			this.host = host;
+			this.manager = manager;
 		}
 
 		@Override
@@ -93,7 +92,10 @@ public class JobExecutorDistributed extends JobExecutor implements JobExecutorPl
 					args.add(results.get(param.getAnnotation(LinkFrom.class).value()).get());
 				}
 			}
-			return host.submitTask(job, m.getName(), args.toArray());
+			TaskExecutor host = manager.getTaskExecutor();
+			Object result = host.submitTask(job, m.getName(), args.toArray());
+			manager.putTaskExecutor(host);
+			return result;
 		}
 		
 	}
