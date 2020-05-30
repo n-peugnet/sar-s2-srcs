@@ -9,8 +9,6 @@ import srcs.workflow.server.TaskHost;
 
 public class HostTaskTracker implements TaskHost {
 
-	
-
 	@Override
 	public Object submitTask(Job job, String method, Object[] args) throws RemoteException {
 		Class<?>[] classes = new Class<?>[args.length];

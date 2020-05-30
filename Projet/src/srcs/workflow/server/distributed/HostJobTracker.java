@@ -22,7 +22,7 @@ public class HostJobTracker extends HostImpl implements Master, TaskExecutorMana
 		JobExecutorPluggable executor = new JobExecutorDistributed(job, this);
 		return executeJob(executor, target, job);
 	}
-	
+
 	@Override
 	public TaskExecutor getTaskExecutor() throws InterruptedException {
 		TaskExecutor executor = taskExecutors.take();
